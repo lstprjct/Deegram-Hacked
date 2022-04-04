@@ -1,54 +1,68 @@
-# Suggested by - @d0n0t (https://github.com/code-rgb/USERGE-X/issues/9)
-# Copyright (C) 2020 BY - GitHub.com/code-rgb [TG - @deleteduser420]
-# All rights reserved.
+# https://github.com/Appeza/tg-mirror-leech-bot
 
+from telegram import Message
 import os
-from pyrogram import filters
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from bot import app
+from subprocess import run
+from bot.helper.ext_utils.shortenurl import short_url
+from telegram.ext import CommandHandler
+from bot import LOGGER, dispatcher, app
+from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.bot_commands import BotCommands
-from bot.helper import post_to_telegraph, runcmd, safe_filename
+from bot.helper.telegram_helper.message_utils import editMessage, sendMessage
+from bot.helper.ext_utils.telegraph_helper import telegraph
 
-@app.on_message(filters.command(BotCommands.MediaInfoCommand))
-async def mediainfo(client, message):
-    reply = message.reply_to_message
-    if not reply:
-        await message.reply_text("Reply to Media first")
-        return
-    process = await message.reply_text("`Processing...`")
-    x_media = None
-    available_media = (
-        "audio",
-        "document",
-        "photo",
-        "sticker",
-        "animation",
-        "video",
-        "voice",
-        "video_note",
-        "new_chat_photo",
-    )
-    for kind in available_media:
-        x_media = getattr(reply, kind, None)
-        if x_media is not None:
+
+def mediainfo(update, context):
+    message:Message = update.effective_message
+    mediamessage = message.reply_to_message
+    # mediainfo control +
+    process = run('mediainfo', capture_output=True, shell=True)
+    if process.stderr.decode(): return LOGGER.error("mediainfo not installed. Read readme.")
+    # mediainfo control -
+    help_msg = "\n<b>By replying to message (including media):</b>"
+    help_msg += f"\n<code>/{BotCommands.MediaInfoCommand}" + " {message}" + "</code>"
+    if not mediamessage: return sendMessage(help_msg, context.bot, update)
+    file = None
+    media_array = [mediamessage.document, mediamessage.video, mediamessage.audio, mediamessage.document, \
+        mediamessage.video, mediamessage.photo, mediamessage.audio, mediamessage.voice, \
+        mediamessage.animation, mediamessage.video_note, mediamessage.sticker]
+    for i in media_array:
+        if i is not None:
+            file = i
             break
-    if x_media is None:
-       await process.edit_text("Reply To a Valid Media Format")
-       return
-    media_type = str(type(x_media)).split("'")[1]
-    file_path = safe_filename(await reply.download())
-    output_ = await runcmd(f'mediainfo "{file_path}"')
-    out = output_[0] if len(output_) != 0 else None
+    if not file: return sendMessage(help_msg, context.bot, update)
+    sent = sendMessage('Running mediainfo. Downloading your file.', context.bot, update)
+    try:
+        VtPath = os.path.join("Mediainfo", str(message.from_user.id))
+        if not os.path.exists("Mediainfo"): os.makedirs("Mediainfo")
+        if not os.path.exists(VtPath): os.makedirs(VtPath)
+        try: filename = os.path.join(VtPath, file.file_name)
+        except: filename = None
+        file = app.download_media(message=file, file_name=filename)
+    except Exception as e:
+        LOGGER.error(e)
+        try: os.remove(file)
+        except: pass
+        file = None
+    if not file: return editMessage("Error when downloading. Try again later.", sent)
+    cmd = f'mediainfo "{os.path.basename(file)}"'
+    LOGGER.info(cmd)
+    process = run(cmd, capture_output=True, shell=True, cwd=VtPath)
+    reply = f"<b>MediaInfo: {os.path.basename(file)}</b><br>"
+    stderr = process.stderr.decode()
+    stdout = process.stdout.decode()
+    if len(stdout) != 0:
+        reply += f"<b>Stdout:</b><br><br><pre>{stdout}</pre><br>"
+        # LOGGER.info(f"mediainfo - {cmd} - {stdout}")
+    if len(stderr) != 0:
+        reply += f"<b>Stderr:</b><br><br><pre>{stderr}</pre>"
+        # LOGGER.error(f"mediainfo - {cmd} - {stderr}")
+    try: os.remove(file)
+    except: pass
+    help = telegraph.create_page(title='MediaInfo', content=reply)["path"]
+    editMessage(short_url(f"https://telegra.ph/{help}"), sent)
 
-    body_text = f"""
-<h2>JSON</h2>
-<pre>{x_media}</pre>
-<br>
 
-<h2>DETAILS</h2>
-<pre>{out or 'Not Supported'}</pre>
-"""
-    text_ = media_type.split(".")[-1].upper()
-    link = post_to_telegraph(media_type, body_text)
-    markup = InlineKeyboardMarkup([[InlineKeyboardButton(text=text_, url=link)]])
-    await process.edit_text("ℹ️ <b>MEDIA INFO</b>", reply_markup=markup)
+mediainfo_handler = CommandHandler(BotCommands.MediaInfoCommand, mediainfo,
+    filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+dispatcher.add_handler(mediainfo_handler)
