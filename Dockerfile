@@ -1,6 +1,5 @@
-FROM anasty17/mltb:latest
-# FROM anasty17/mltb-oracle:latest
-RUN apt install mediainfo -y
+FROM priiiiyo/tg-mirror-leech-bot:latest
+
 WORKDIR /usr/src/app
 RUN chmod 777 /usr/src/app
 

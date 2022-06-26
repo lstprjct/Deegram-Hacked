@@ -1,4 +1,4 @@
-from bot import AUTHORIZED_CHATS, SUDO_USERS, dispatcher, DB_URI
+from bot import AUTHORIZED_CHATS, SUDO_USERS, dispatcher, DB_URI, LEECH_LOG
 from bot.helper.telegram_helper.message_utils import sendMessage
 from telegram.ext import CommandHandler
 from bot.helper.telegram_helper.filters import CustomFilters
@@ -20,9 +20,7 @@ def authorize(update, context):
             AUTHORIZED_CHATS.add(user_id)
         else:
             AUTHORIZED_CHATS.add(user_id)
-            with open('authorized_chats.txt', 'a') as file:
-                file.write(f'{user_id}\n')
-                msg = 'User Authorized'
+            msg = 'User Authorized'
     elif reply_message is None:
         # Trying to authorize a chat
         chat_id = update.effective_chat.id
@@ -33,9 +31,7 @@ def authorize(update, context):
             AUTHORIZED_CHATS.add(chat_id)
         else:
             AUTHORIZED_CHATS.add(chat_id)
-            with open('authorized_chats.txt', 'a') as file:
-                file.write(f'{chat_id}\n')
-                msg = 'Chat Authorized'
+            msg = 'Chat Authorized'
     else:
         # Trying to authorize someone by replying
         user_id = reply_message.from_user.id
@@ -46,9 +42,7 @@ def authorize(update, context):
             AUTHORIZED_CHATS.add(user_id)
         else:
             AUTHORIZED_CHATS.add(user_id)
-            with open('authorized_chats.txt', 'a') as file:
-                file.write(f'{user_id}\n')
-                msg = 'User Authorized'
+            msg = 'User Authorized'
     sendMessage(msg, context.bot, update.message)
 
 def unauthorize(update, context):
@@ -88,11 +82,85 @@ def unauthorize(update, context):
             AUTHORIZED_CHATS.remove(user_id)
         else:
             msg = 'User Already Unauthorized!'
-    if DB_URI is None:
-        with open('authorized_chats.txt', 'a') as file:
-            file.truncate(0)
-            for i in AUTHORIZED_CHATS:
-                file.write(f'{i}\n')
+    sendMessage(msg, context.bot, update.message)
+
+def addleechlog(update, context):
+    reply_message = None
+    message_ = None
+    reply_message = update.message.reply_to_message
+    message_ = update.message.text.split(' ')
+    if len(message_) == 2:
+        user_id = int(message_[1])
+        if user_id in LEECH_LOG:
+            msg = 'User Already in Leech Log!'
+        elif DB_URI is not None:
+            msg = DbManger().addleech_log(user_id)
+            LEECH_LOG.add(user_id)
+        else:
+            LEECH_LOG.add(user_id)
+            msg = 'User Added in Leech Logs'
+    elif reply_message is None:
+        # Trying to authorize a chat
+        chat_id = update.effective_chat.id
+        if chat_id in LEECH_LOG:
+            msg = 'Chat Already in Leech Logs'
+        elif DB_URI is not None:
+            msg = DbManger().addleech_log(chat_id)
+            LEECH_LOG.add(chat_id)
+        else:
+            LEECH_LOG.add(chat_id)
+            msg = 'Chat Added to Leech Logs'
+    else:
+        # Trying to authorize someone by replying
+        user_id = reply_message.from_user.id
+        if user_id in LEECH_LOG:
+            msg = 'Chat Already in Leech Logs'
+        elif DB_URI is not None:
+            msg = DbManger().addleech_log(user_id)
+            LEECH_LOG.add(user_id)
+        else:
+            LEECH_LOG.add(user_id)
+            msg = 'Chat Added to Leech Logs'
+    sendMessage(msg, context.bot, update.message)
+
+
+def rmleechlog(update, context):
+    reply_message = None
+    message_ = None
+    reply_message = update.message.reply_to_message
+    message_ = update.message.text.split(' ')
+    if len(message_) == 2:
+        user_id = int(message_[1])
+        if user_id in LEECH_LOG:
+            if DB_URI is not None:
+                msg = DbManger().rmleech_log(user_id)
+            else:
+                msg = 'User removed from leech logs'
+            LEECH_LOG.remove(user_id)
+        else:
+            msg = 'User does not exist in leech logs!'
+    elif reply_message is None:
+        # Trying to unauthorize a chat
+        chat_id = update.effective_chat.id
+        if chat_id in LEECH_LOG:
+            if DB_URI is not None:
+                msg = DbManger().rmleech_log(chat_id)
+            else:
+                msg = 'Chat removed from leech logs!'
+            LEECH_LOG.remove(chat_id)
+        else:
+            msg = 'Chat does not exist in leech logs!'
+    else:
+        # Trying to authorize someone by replying
+        user_id = reply_message.from_user.id
+        if user_id in LEECH_LOG:
+            if DB_URI is not None:
+                msg = DbManger().rmleech_log(user_id)
+            else:
+                msg = 'User removed from leech logs!'
+            LEECH_LOG.remove(user_id)
+        else:
+            msg = 'User does not exist in leech logs!'
     sendMessage(msg, context.bot, update.message)
 
 def addSudo(update, context):
@@ -109,9 +177,7 @@ def addSudo(update, context):
             SUDO_USERS.add(user_id)
         else:
             SUDO_USERS.add(user_id)
-            with open('sudo_users.txt', 'a') as file:
-                file.write(f'{user_id}\n')
-                msg = 'Promoted as Sudo'
+            msg = 'Promoted as Sudo'
     elif reply_message is None:
         msg = "Give ID or Reply To message of whom you want to Promote."
     else:
@@ -124,9 +190,7 @@ def addSudo(update, context):
             SUDO_USERS.add(user_id)
         else:
             SUDO_USERS.add(user_id)
-            with open('sudo_users.txt', 'a') as file:
-                file.write(f'{user_id}\n')
-                msg = 'Promoted as Sudo'
+            msg = 'Promoted as Sudo'
     sendMessage(msg, context.bot, update.message)
 
 def removeSudo(update, context):
@@ -156,18 +220,14 @@ def removeSudo(update, context):
             SUDO_USERS.remove(user_id)
         else:
             msg = 'Not sudo user to demote!'
-    if DB_URI is None:
-        with open('sudo_users.txt', 'a') as file:
-            file.truncate(0)
-            for i in SUDO_USERS:
-                file.write(f'{i}\n')
     sendMessage(msg, context.bot, update.message)
 
 def sendAuthChats(update, context):
-    user = sudo = ''
+    user = sudo = leechlog = ''
     user += '\n'.join(f"<code>{uid}</code>" for uid in AUTHORIZED_CHATS)
     sudo += '\n'.join(f"<code>{uid}</code>" for uid in SUDO_USERS)
-    sendMessage(f'<b><u>Authorized Chats:</u></b>\n{user}\n<b><u>Sudo Users:</u></b>\n{sudo}', context.bot, update.message)
+    leechlog += '\n'.join(f"<code>{uid}</code>" for uid in LEECH_LOG)
+    sendMessage(f'<b><u>Authorized Chats:</u></b>\n{user}\n<b><u>Sudo Users:</u></b>\n{sudo}\n<b><u>Leech Log:</u></b>\n{leechlog}\n', context.bot, update.message)
 
 
 send_auth_handler = CommandHandler(command=BotCommands.AuthorizedUsersCommand, callback=sendAuthChats,
@@ -180,9 +240,14 @@ addsudo_handler = CommandHandler(command=BotCommands.AddSudoCommand, callback=ad
                                     filters=CustomFilters.owner_filter, run_async=True)
 removesudo_handler = CommandHandler(command=BotCommands.RmSudoCommand, callback=removeSudo,
                                     filters=CustomFilters.owner_filter, run_async=True)
-
+addleechlog_handler = CommandHandler(command=BotCommands.AddleechlogCommand, callback=addleechlog,
+                                    filters=CustomFilters.owner_filter | CustomFilters.sudo_user, run_async=True)
+rmleechlog_handler = CommandHandler(command=BotCommands.RmleechlogCommand, callback=rmleechlog,
+                                    filters=CustomFilters.owner_filter | CustomFilters.sudo_user, run_async=True)
 dispatcher.add_handler(send_auth_handler)
 dispatcher.add_handler(authorize_handler)
 dispatcher.add_handler(unauthorize_handler)
 dispatcher.add_handler(addsudo_handler)
 dispatcher.add_handler(removesudo_handler)
+dispatcher.add_handler(addleechlog_handler)
+dispatcher.add_handler(rmleechlog_handler)

@@ -1,11 +1,11 @@
 from bot import aria2, DOWNLOAD_DIR, LOGGER
-from bot.helper.ext_utils.bot_utils import MirrorStatus
+from bot.helper.ext_utils.bot_utils import MirrorStatus, EngineStatus
 
 def get_download(gid):
     try:
         return aria2.get_download(gid)
-    except:
-        pass
+    except Exception as e:
+        LOGGER.error(f'{e}: while getting torrent info')
 
 
 class AriaDownloadStatus:
@@ -40,6 +40,7 @@ class AriaDownloadStatus:
         return self.__download.completed_length
 
     def speed(self):
+        self.__update()
         return self.__download.download_speed_string()
 
     def name(self):
@@ -64,6 +65,9 @@ class AriaDownloadStatus:
         else:
             return MirrorStatus.STATUS_DOWNLOADING
 
+    def eng(self):
+        return EngineStatus.STATUS_ARIA
+
     def aria_download(self):
         return self.__download
 
@@ -77,6 +81,7 @@ class AriaDownloadStatus:
         return self.__uid
 
     def gid(self):
+        self.__update()
         return self.__gid
 
     def cancel_download(self):
