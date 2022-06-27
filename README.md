@@ -1,9 +1,20 @@
+![Tg-Mirror-Leech-Bot](https://github.com/Appeza/tg-mirror-leech-bot/raw/master/assets/banner.png)
+
+# Tg-Mirror-Leech-Bot
+[![Sponsor](https://img.shields.io/badge/sponsor-30363D?style=for-the-badge&logo=GitHub-Sponsors&logoColor=#white)](https://ko-fi.com/priiiiyo)
+[![GitHub watchers](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://img.shields.io/github/watchers/Appeza/tg-mirror-leech-bot)
+[![Docker Pulls](https://img.shields.io/badge/Docker-ff1709?style=for-the-badge&logo=docker&logoColor=white)](https://hub.docker.com/r/priiiiyo/mega-sdk-python)
+[![Channel](https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/+UMw0Bxh5S945zGMt)
+
 This is a Telegram Bot written in Python for mirroring files on the Internet to your Google Drive or Telegram. Based on [python-aria-mirror-bot](https://github.com/lzzy12/python-aria-mirror-bot)
 
 ## If You Like My work Star the repo and Follow me on Github
 
-# Features:
-## By [Priiiiyo](https://github.com/priiiiyo)
+## Features:
+<details>
+    <summary><b>Click Here For More Details</b></summary>
+
+## Special Features By [Priiiiyo](https://github.com/priiiiyo)
 - Mirror logs
 - Source link logs
 - Database Support for leech logs
@@ -14,7 +25,7 @@ This is a Telegram Bot written in Python for mirroring files on the Internet to 
 - Auto Delete All Bot Related Message in AUTO_DELETE_UPLOAD_MESSAGE_DURATION duration
 - And many more little changes can't remember
 
-## By [Anas](https://github.com/anasty17) & [Priiiiyo](https://github.com/priiiiyo)
+## Additional Features [Anas](https://github.com/anasty17) & [Priiiiyo](https://github.com/priiiiyo)
 - qBittorrent
 - Select files from Torrent before downloading using qbittorrent
 - Leech (splitting, thumbnail for each user, setting as document or as media for each user)
