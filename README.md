@@ -269,6 +269,8 @@ Fill up rest of the fields. Meaning of each field is discussed below:
 </details>
 
 ### 3. Getting Google OAuth API credential file and token.pickle
+<details>
+    <summary><b>Click Here For More Details</b></summary>
 
 **NOTES**
 - Old authentication changed, now we can't use bot or replit to generate token.pickle. You need OS with a browser.
@@ -291,7 +293,11 @@ python3 generate_drive_token.py
 ```
 ------
 
+</details>
+
 ## Deploying on VPS
+<details>
+    <summary><b>Click Here For More Details</b></summary>
 
 **IMPORTANT NOTES**:
 1. You must set `SERVER_PORT` variable to `80` or any other port you want to use.
@@ -312,7 +318,11 @@ sudo docker image prune -a
 
 ------
 
+</details>
+
 ### Deploying on VPS Using Docker
+<details>
+    <summary><b>Click Here For More Details</b></summary>
 
 - Start Docker daemon (skip if already running), if installed by snap then use 2nd command:
 ```
@@ -343,7 +353,11 @@ sudo docker stop id
 
 ----
 
+</details>
+
 ### Deploying on VPS Using docker-compose
+<details>
+    <summary><b>Click Here For More Details</b></summary>
 
 **NOTE**: If you want to use port other than 80, change it in [docker-compose.yml](https://github.com/Appeza/tg-mirror-leech-bot/blob/master/docker-compose.yml) also.
 
@@ -380,7 +394,11 @@ sudo docker-compose start
 
 ------
 
+</details>
+
 # Extras
+<details>
+    <summary><b>Click Here For More Details</b></summary>
 
 ## Bot commands to be set in [@BotFather](https://t.me/BotFather)
 
@@ -427,7 +445,11 @@ rmleechlog - Remove leech log from database
 ```
 ------
 
+</details>
+
 ## UPSTREAM REPO (Recommended)
+<details>
+    <summary><b>Click Here For More Details</b></summary>
 
 - `UPSTREAM_REPO` variable can be used for edit/add any file in repository.
 - You can add private/public repository link to grab/overwrite all files from it.
@@ -439,6 +461,8 @@ rmleechlog - Remove leech log from database
 - `UPSTREAM_BRANCH` don't ever fill heroku here.
 
 ------
+
+</details>
 
 ## Using Service Accounts for uploading to avoid user rate limit
 >For Service Account to work, you must set `USE_SERVICE_ACCOUNTS` = "True" in config file or environment variables.
@@ -488,6 +512,8 @@ A folder named accounts will be created which will contain keys for the Service 
 </details>
 
 ### 2. Add Service Accounts
+<details>
+    <summary><b>Click Here For More Details</b></summary>
 
 #### Two methods to add service accounts
 Choose one of these methods
@@ -519,7 +545,12 @@ python3 add_to_team_drive.py -d SharedTeamDriveSrcID
 ```
 ------
 
+</details>
+
 ## Multi Search IDs
+<details>
+    <summary><b>Click Here For More Details</b></summary>
+
 To use list from multi TD/folder. Run driveid.py in your terminal and follow it. It will generate **drive_folder** file or u can simply create `drive_folder` file in working directory and fill it, check below format:
 ```
 MyTdName folderID/tdID IndexLink(if available)
@@ -527,7 +558,12 @@ MyTdName2 folderID/tdID IndexLink(if available)
 ```
 -----
 
+</details>
+
 ## Yt-dlp and Aria2c Authentication Using .netrc File
+<details>
+    <summary><b>Click Here For More Details</b></summary>
+
 For using your premium accounts in yt-dlp or for protected Index Links, create .netrc file according to following format:
 
 **Note**: Create .netrc and not netrc, this file will be hidden, so view hidden files to edit it after creation.
@@ -552,7 +588,12 @@ Where host is the name of extractor (eg. instagram, Twitch). Multiple accounts o
 
 -----
 
+</details>
+
 ## Gdtot Cookies
+<details>
+    <summary><b>Click Here For More Details</b></summary>
+
 To Clone or Leech gdtot link follow these steps:
 1. Login/Register to [gdtot](https://new.gdtot.top).
 2. Copy this script and paste it in browser address bar.
@@ -581,4 +622,6 @@ To Clone or Leech gdtot link follow these steps:
 4. From this you have to paste value for **CRYPT** in config.env file.
 
 -----
+
+</details>
 
