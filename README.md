@@ -10,7 +10,7 @@ This is a Telegram Bot written in Python for mirroring files on the Internet to 
 
 ## If You Like My work Star the repo and Follow me on Github
 
-## Features:
+# Features supported:
 <details>
     <summary><b>Click Here For More Details</b></summary>
 
@@ -78,6 +78,9 @@ This is a Telegram Bot written in Python for mirroring files on the Internet to 
 
 - Direct links Supported:
   >letsupload.io, hxfile.co, anonfiles.com, bayfiles.com, antfiles, fembed.com, fembed.net, femax20.com, layarkacaxxi.icu, fcdn.stream, sbplay.org, naniplay.com, naniplay.nanime.in, naniplay.nanime.biz, sbembed.com, streamtape.com, streamsb.net, feurl.com, pixeldrain.com, racaty.net, 1fichier.com, 1drv.ms (Only works for file not folder or business account), uptobox.com (Uptobox account must be premium) and solidfiles.com
+```
+
+</details>
 
 # How to deploy?
 
