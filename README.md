@@ -111,6 +111,34 @@ pip3 install -r requirements-cli.txt
 
 </details>
 
+### Generate Database
+<details>
+    <summary><b>Click Here For More Details</b></summary>
+
+
+**1. Using Railway**
+- Go to [railway](https://railway.app) and create account
+- Start new project
+- Press on `Provision PostgreSQL`
+- After creating database press on `PostgresSQL`
+- Go to `Connect` column
+- Copy `Postgres Connection URL` and fill `DATABASE_URL` variable with it
+
+**2. Using Heroku PostgreSQL**
+<p><a href="https://dev.to/prisma/how-to-setup-a-free-postgresql-database-on-heroku-1dc1"> <img src="https://img.shields.io/badge/See%20Dev.to-black?style=for-the-badge&logo=dev.to" width="160""/></a></p>
+
+**3. Using ElephantSQL**
+- Go to [elephantsql](https://elephantsql.com) and create account
+- Hit `Create New Instance`
+- Follow the further instructions in the screen
+- Hit `Select Region`
+- Hit `Review`
+- Hit `Create instance`
+- Select your database name
+- Copy your database url, and fill `DATABASE_URL` variable with it
+
+</details>
+
 ### 2. Setting up config file
 <details>
     <summary><b>Click Here For More Details</b></summary>
@@ -486,34 +514,6 @@ Then add emails from emails.txt to Google Group, after that add this Google Grou
 ```
 python3 add_to_team_drive.py -d SharedTeamDriveSrcID
 ```
-------
-
-### Generate Database
-<details>
-    <summary><b>Click Here For More Details</b></summary>
-
-
-**1. Using Railway**
-- Go to [railway](https://railway.app) and create account
-- Start new project
-- Press on `Provision PostgreSQL`
-- After creating database press on `PostgresSQL`
-- Go to `Connect` column
-- Copy `Postgres Connection URL` and fill `DATABASE_URL` variable with it
-
-**2. Using Heroku PostgreSQL**
-<p><a href="https://dev.to/prisma/how-to-setup-a-free-postgresql-database-on-heroku-1dc1"> <img src="https://img.shields.io/badge/See%20Dev.to-black?style=for-the-badge&logo=dev.to" width="160""/></a></p>
-
-**3. Using ElephantSQL**
-- Go to [elephantsql](https://elephantsql.com) and create account
-- Hit `Create New Instance`
-- Follow the further instructions in the screen
-- Hit `Select Region`
-- Hit `Review`
-- Hit `Create instance`
-- Select your database name
-- Copy your database url, and fill `DATABASE_URL` variable with it
-
 ------
 
 ## Multi Search IDs
