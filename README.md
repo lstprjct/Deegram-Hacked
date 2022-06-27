@@ -85,7 +85,6 @@ This is a Telegram Bot written in Python for mirroring files on the Internet to 
 <details>
     <summary><b>Click Here For More Details</b></summary>
 
-Deploying is pretty much straight forward and is divided into several steps as follows:
 ### 1. Installing requirements
 
 - Clone this repo:
@@ -118,7 +117,6 @@ pip3 install -r requirements-cli.txt
 <details>
     <summary><b>Click Here For More Details</b></summary>
 
-
 **1. Using Railway**
 - Go to [railway](https://railway.app) and create account
 - Start new project
@@ -145,7 +143,6 @@ pip3 install -r requirements-cli.txt
 ### 2. Setting up config file
 <details>
     <summary><b>Click Here For More Details</b></summary>
-
 
 ```
 cp config_sample.env config.env
