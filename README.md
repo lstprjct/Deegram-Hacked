@@ -81,7 +81,10 @@ This is a Telegram Bot written in Python for mirroring files on the Internet to 
 
 </details>
 
-# How to deploy?
+# How to deploy
+<details>
+    <summary><b>Click Here For More Details</b></summary>
+
 Deploying is pretty much straight forward and is divided into several steps as follows:
 ### 1. Installing requirements
 
