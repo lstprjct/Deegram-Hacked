@@ -78,14 +78,10 @@ This is a Telegram Bot written in Python for mirroring files on the Internet to 
 
 - Direct links Supported:
   >letsupload.io, hxfile.co, anonfiles.com, bayfiles.com, antfiles, fembed.com, fembed.net, femax20.com, layarkacaxxi.icu, fcdn.stream, sbplay.org, naniplay.com, naniplay.nanime.in, naniplay.nanime.biz, sbembed.com, streamtape.com, streamsb.net, feurl.com, pixeldrain.com, racaty.net, 1fichier.com, 1drv.ms (Only works for file not folder or business account), uptobox.com (Uptobox account must be premium) and solidfiles.com
-```
 
+</details>
 
 # How to deploy?
-<details>
-    <summary><b>Click Here For More Details</b></summary>
-
-
 ## Prerequisites
 
 - Tutorial Video from A to Z:
@@ -119,9 +115,6 @@ pip3 install -r requirements-cli.txt
 ------
 
 ### 2. Setting up config file
-<details>
-    <summary><b>Click Here For More Details</b></summary>
-
 
 ```
 cp config_sample.env config.env
@@ -132,9 +125,6 @@ _____REMOVE_THIS_LINE_____=True
 ```
 Fill up rest of the fields. Meaning of each field is discussed below:
 **0. Special Vars for features added by Priiiiyo **
-<details>
-    <summary><b>Click Here For More Details</b></summary>
-
 - `LEECH_LOG` - Chat id of channel/group where leeched files will be uploaded, **NOTE:** only put 1 channel/group id starts with -100xxxxxxxxx, if you leave this empty bot will sent leech files in current chat.
 - `MIRROR_LOGS` - Chat id of channels/groups where you want to store Mirror logs
 - `BOT_PM` - set it `True` if you want to send mirror links and leeched files in user's PM, Default is `False`.
@@ -144,9 +134,6 @@ Fill up rest of the fields. Meaning of each field is discussed below:
 - `SOURCE_LINK` -  set it `True` if you want to get Source Link of Mirrored/Cloned file,  Default is `False`.
 - `AUTO_DELETE_UPLOAD_MESSAGE_DURATION` Interval of time (in seconds), after which the bot deletes it's message and command message which is expected to be viewed instantly. **NOTE**: Set to `-1` to disable auto upload message deletion. `Int`
 - *1. Required Fields**
-<details>
-    <summary><b>Click Here For More Details</b></summary>
-
 - `BOT_TOKEN`: The Telegram Bot Token that you got from [@BotFather](https://t.me/BotFather)
 - `GDRIVE_FOLDER_ID`: This is the Folder/TeamDrive ID of the Google Drive Folder to which you want to upload all the mirrors.
 - `OWNER_ID`: The Telegram User ID (not username) of the Owner of the bot. `Int`
@@ -157,10 +144,7 @@ Fill up rest of the fields. Meaning of each field is discussed below:
 - `TELEGRAM_API`: This is to authenticate your Telegram account for downloading Telegram files. You can get this from https://my.telegram.org. `Int`
 - `TELEGRAM_HASH`: This is to authenticate your Telegram account for downloading Telegram files. You can get this from https://my.telegram.org.
 
-**2. Optional Fields**
-<details>
-    <summary><b>Click Here For More Details</b></summary>
-    
+**2. Optional Fields**   
 - `DATABASE_URL`: Your SQL Database URL. Follow this [Generate Database](https://github.com/Appeza/tg-mirror-leech-bot/tree/master#generate-database) to generate database. Data will be saved in Database: auth and sudo users, leech settings including thumbnails for each user, rss data and incomplete tasks. **NOTE**: If deploying on heroku and using heroku postgresql delete this variable from **config.env** file. **DATABASE_URL** will be grabbed from heroku variables.
 - `AUTHORIZED_CHATS`: Fill user_id and chat_id of groups/users you want to authorize. Separate them by space.
 - `SUDO_USERS`: Fill user_id of users whom you want to give sudo permission. Separate them by space.
@@ -250,9 +234,6 @@ Fill up rest of the fields. Meaning of each field is discussed below:
 ------
 
 ### 3. Getting Google OAuth API credential file and token.pickle
-<details>
-    <summary><b>Click Here For More Details</b></summary>
-
 
 **NOTES**
 - Old authentication changed, now we can't use bot or replit to generate token.pickle. You need OS with a browser.
@@ -276,9 +257,6 @@ python3 generate_drive_token.py
 ------
 
 ## Deploying on VPS
-<details>
-    <summary><b>Click Here For More Details</b></summary>
-
 
 **IMPORTANT NOTES**:
 1. You must set `SERVER_PORT` variable to `80` or any other port you want to use.
@@ -300,9 +278,6 @@ sudo docker image prune -a
 ------
 
 ### Deploying on VPS Using Docker
-<details>
-    <summary><b>Click Here For More Details</b></summary>
-
 
 - Start Docker daemon (skip if already running), if installed by snap then use 2nd command:
 ```
@@ -334,9 +309,6 @@ sudo docker stop id
 ----
 
 ### Deploying on VPS Using docker-compose
-<details>
-    <summary><b>Click Here For More Details</b></summary>
-
 
 **NOTE**: If you want to use port other than 80, change it in [docker-compose.yml](https://github.com/Appeza/tg-mirror-leech-bot/blob/master/docker-compose.yml) also.
 
@@ -365,9 +337,6 @@ sudo docker-compose start
 ------
 
 # Extras
-<details>
-    <summary><b>Click Here For More Details</b></summary>
-
 
 ## Bot commands to be set in [@BotFather](https://t.me/BotFather)
 
@@ -415,9 +384,6 @@ rmleechlog - Remove leech log from database
 ------
 
 ## UPSTREAM REPO (Recommended)
-<details>
-    <summary><b>Click Here For More Details</b></summary>
-
 
 - `UPSTREAM_REPO` variable can be used for edit/add any file in repository.
 - You can add private/public repository link to grab/overwrite all files from it.
@@ -431,9 +397,6 @@ rmleechlog - Remove leech log from database
 ------
 
 ## Using Service Accounts for uploading to avoid user rate limit
-<details>
-    <summary><b>Click Here For More Details</b></summary>
-
 >For Service Account to work, you must set `USE_SERVICE_ACCOUNTS` = "True" in config file or environment variables.
 >**NOTE**: Using Service Accounts is only recommended while uploading to a Team Drive.
 
