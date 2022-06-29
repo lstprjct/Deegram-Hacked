@@ -195,6 +195,50 @@ sudo_help_string = f'''<br><br><b> Sudo/Owner Only Commands </b><br><br>
 <br><br>
 <b>/{BotCommands.RmleechlogCommand}</b>: Remove Leech Log
 '''
+
+leech_help_string_telegraph = f'''<br>
+<br>
+<b> Leech Commands </b> <br><br>
+<b>/{BotCommands.LeechCommand}</b> [download_url][magnet_link]: Start leeching to Telegram, Use <b>/{BotCommands.LeechCommand} s</b> to select files before leeching
+<br><br>
+<b>/{BotCommands.ZipLeechCommand}</b> [download_url][magnet_link]: Start leeching to Telegram and upload the file/folder compressed with zip extension
+<br><br>
+<b>/{BotCommands.UnzipLeechCommand}</b> [download_url][magnet_link][torent_file]: Start leeching to Telegram and upload the file/folder extracted from any archive extension
+<br><br>
+<b>/{BotCommands.QbLeechCommand}</b> [magnet_link][torrent_file][torrent_file_url]: Start leeching to Telegram using qBittorrent, Use <b>/{BotCommands.QbLeechCommand} s</b> to select files before leeching
+<br><br>
+<b>/{BotCommands.QbZipLeechCommand}</b> [magnet_link][torrent_file][torrent_file_url]: Start leeching to Telegram using qBittorrent and upload the file/folder compressed with zip extension
+<br><br>
+<b>/{BotCommands.QbUnzipLeechCommand}</b> [magnet_link][torrent_file][torrent_file_url]: Start leeching to Telegram using qBittorrent and upload the file/folder extracted from any archive extension
+<br><br>
+<b>/{BotCommands.LeechWatchCommand}</b> [yt-dlp supported link]: Leech yt-dlp supported link
+<br><br>
+<b>/{BotCommands.LeechZipWatchCommand}</b> [yt-dlp supported link]: Leech yt-dlp supported link as zip
+<br><br>
+<b>/{BotCommands.LeechSetCommand}</b>: Leech settings
+<br><br>
+<b>/{BotCommands.SetThumbCommand}</b>: Reply photo to set it as Thumbnail
+'''
+if LEECH_ENABLED:
+    help = telegraph.create_page(
+        title='Mirror Hunter & Leech Help',
+        content=mirror_help_string_telegraph + leech_help_string_telegraph,
+    )["path"]
+else:
+    help = telegraph.create_page(
+        title='Mirror Hunter Help',
+        content=mirror_help_string_telegraph,
+    )["path"]
+
+if OWNER_ID:
+    try:
+        help = telegraph.create_page(
+        title='Mirror Hunter Help',
+        content=mirror_help_string_telegraph + leech_help_string_telegraph + sudo_help_string_telegraph,
+    )["path"]
+    except Exception as e:
+        LOGGER.warning(e)
+
 help_string = f'''
 Hei, Need Help!!
 '''
