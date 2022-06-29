@@ -1,3 +1,5 @@
+from typing import Any
+
 from logging import getLogger, FileHandler, StreamHandler, INFO, basicConfig, error as log_error, info as log_info, warning as log_warning
 from socket import setdefaulttimeout
 from faulthandler import enable as faulthandler_enable
@@ -106,11 +108,14 @@ rss_dict = {}
 
 AUTHORIZED_CHATS = set()
 SUDO_USERS = set()
+MOD_USERS = set()
 AS_DOC_USERS = set()
 AS_MEDIA_USERS = set()
 EXTENTION_FILTER = set(['.torrent'])
 LEECH_LOG = set()
+LEECH_LOG_ALT = set()
 MIRROR_LOGS = set()
+LINK_LOGS = set()
 try:
     aid = getConfig('AUTHORIZED_CHATS')
     aid = aid.split(' ')
@@ -123,6 +128,13 @@ try:
     aid = aid.split(' ')
     for _id in aid:
         SUDO_USERS.add(int(_id))
+except:
+    pass
+try:
+    aid = getConfig('MOD_USERS')
+    aid = aid.split(' ')
+    for _id in aid:
+        MOD_USERS.add(int(_id))
 except:
     pass
 try:
@@ -141,10 +153,24 @@ try:
 except:
     pass
 try:
+    aid = getConfig('LEECH_LOG_ALT')
+    aid = aid.split(' ')
+    for _id in aid:
+        LEECH_LOG_ALT.add(int(_id))
+except:
+    pass
+try:
     aid = getConfig('MIRROR_LOGS')
     aid = aid.split(' ')
     for _id in aid:
         MIRROR_LOGS.add(int(_id))
+except:
+    pass
+try:
+    aid = getConfig('LINK_LOGS')
+    aid = aid.split(' ')
+    for _id in aid:
+        LINK_LOGS.add(int(_id))
 except:
     pass
 try:
@@ -429,6 +455,11 @@ try:
 except:
     AS_DOCUMENT = False
 try:
+    IMAGE_LEECH = getConfig('IMAGE_LEECH')
+    IMAGE_LEECH = IMAGE_LEECH.lower() == 'true'
+except KeyError:
+    IMAGE_LEECH = False
+try:
     EQUAL_SPLITS = getConfig('EQUAL_SPLITS')
     EQUAL_SPLITS = EQUAL_SPLITS.lower() == 'true'
 except:
@@ -450,6 +481,44 @@ try:
         raise KeyError
 except:
     CRYPT = None
+try:
+    UNIFIED_EMAIL = getConfig('UNIFIED_EMAIL')
+    UNIFIED_PASS = getConfig('UNIFIED_PASS')
+    if len(UNIFIED_EMAIL) == 0 or len(UNIFIED_PASS) == 0:
+        raise KeyError
+except KeyError:
+    UNIFIED_EMAIL = None
+    UNIFIED_PASS = None
+try:
+    HUBDRIVE_CRYPT = getConfig('HUBDRIVE_CRYPT')
+    if len(HUBDRIVE_CRYPT) == 0:
+        raise KeyError
+except:
+    HUBDRIVE_CRYPT = None
+try:
+    KATDRIVE_CRYPT = getConfig('KATDRIVE_CRYPT')
+    if len(KATDRIVE_CRYPT) == 0:
+        raise KeyError
+except:
+    KATDRIVE_CRYPT = None
+try:
+    DRIVEFIRE_CRYPT = getConfig('DRIVEFIRE_CRYPT')
+    if len(DRIVEFIRE_CRYPT) == 0:
+        raise KeyError
+except:
+    DRIVEFIRE_CRYPT = None
+try:
+    XSRF_TOKEN = getConfig('XSRF_TOKEN')
+    if len(XSRF_TOKEN) == 0:
+        raise KeyError
+except:
+    XSRF_TOKEN = None
+try:
+    laravel_session = getConfig('laravel_session')
+    if len(laravel_session) == 0:
+        raise KeyError
+except:
+    laravel_session = None
 try:
     AUTHOR_NAME = getConfig('AUTHOR_NAME')
     if len(AUTHOR_NAME) == 0:
@@ -487,6 +556,29 @@ try:
     BOT_PM = BOT_PM.lower() == 'true'
 except KeyError:
     BOT_PM = False
+try:
+    FSUB = getConfig('FSUB')
+    FSUB = FSUB.lower() == 'true'
+except KeyError:
+    FSUB = False
+    
+try:
+    FSUB_CHANNEL_ID = int(getConfig('FSUB_CHANNEL_ID'))
+except KeyError:
+    FSUB_CHANNEL_ID = ""
+try:
+    CHANNEL_USERNAME: str = getConfig('CHANNEL_USERNAME').replace("@", "")
+    if len(CHANNEL_USERNAME) == 0:
+        CHANNEL_USERNAME = 'AnimeDynastyEN'
+except KeyError:
+    logging.warning('CHANNEL_USERNAME not provided')
+    CHANNEL_USERNAME = 'AnimeDynastyEN'
+
+try:
+    LEECH_ENABLED = getConfig('LEECH_ENABLED')
+    LEECH_ENABLED = LEECH_ENABLED.lower() == 'true'
+except KeyError:
+    LEECH_ENABLED = False
 try:
     APPDRIVE_EMAIL = getConfig('APPDRIVE_EMAIL')
     APPDRIVE_PASS = getConfig('APPDRIVE_PASS')
