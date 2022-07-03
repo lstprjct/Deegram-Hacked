@@ -7,7 +7,7 @@ from sys import executable
 from telegram import InlineKeyboardMarkup
 from telegram.ext import CommandHandler
 
-from bot import bot, dispatcher, updater, botStartTime, IGNORE_PENDING_REQUESTS, LOGGER, Interval, INCOMPLETE_TASK_NOTIFIER, DB_URI, app, main_loop
+from bot import bot, dispatcher, updater, botStartTime, IGNORE_PENDING_REQUESTS, LOGGER, LEECH_ENABLED, OWNER_ID, Interval, INCOMPLETE_TASK_NOTIFIER, DB_URI, app, main_loop
 from .helper.ext_utils.fs_utils import start_cleanup, clean_all, exit_clean_up
 from .helper.ext_utils.telegraph_helper import telegraph
 from .helper.ext_utils.bot_utils import get_readable_file_size, get_readable_time
@@ -101,7 +101,7 @@ def log(update, context):
     sendLogFile(context.bot, update.message)
 
 
-help_string_telegraph = f'''<br>
+mirror_help_string_telegraph = f'''<br>
 <b>/{BotCommands.HelpCommand}</b>: To get this message
 <br><br>
 <b>/{BotCommands.MirrorCommand}</b> [download_url][magnet_link]: Start mirroring to Google Drive. Send <b>/{BotCommands.MirrorCommand}</b> for more help
@@ -170,7 +170,7 @@ help_string_telegraph = f'''<br>
 '''
 
 
-sudo_help_string = f'''<br><br><b> Sudo/Owner Only Commands </b><br><br>
+sudo_help_string_telegraph = f'''<br><br><b> Sudo/Owner Only Commands </b><br><br>
 <b>/{BotCommands.PingCommand}</b>: Check how long it takes to Ping the Bot
 <br><br>
 <b>/{BotCommands.AuthorizeCommand}</b>: Authorize a chat or a user to use the bot (Can only be invoked by Owner & Sudo of the bot)
@@ -221,19 +221,19 @@ leech_help_string_telegraph = f'''<br>
 '''
 if LEECH_ENABLED:
     help = telegraph.create_page(
-        title='Mirror Hunter & Leech Help',
+        title='Mirror TG Mirror Leech Help',
         content=mirror_help_string_telegraph + leech_help_string_telegraph,
     )["path"]
 else:
     help = telegraph.create_page(
-        title='Mirror Hunter Help',
+        title='TG Mirror Leech Help',
         content=mirror_help_string_telegraph,
     )["path"]
 
 if OWNER_ID:
     try:
         help = telegraph.create_page(
-        title='Mirror Hunter Help',
+        title='TG Mirror Leech Help',
         content=mirror_help_string_telegraph + leech_help_string_telegraph + sudo_help_string_telegraph,
     )["path"]
     except Exception as e:
@@ -243,8 +243,8 @@ help_string = f'''
 Hei, Need Help!!
 '''
 help = telegraph.create_page(
-        title='Helios-Mirror Help',
-        content=help_string_telegraph + sudo_help_string,
+        title='Tg-Mirror-Leech Help',
+        content=mirror_help_string_telegraph + sudo_help_string_telegraph,
     )["path"]
 
 def bot_help(update, context):
@@ -288,7 +288,7 @@ botcmds = [
     ]
 
 def main():
-    # bot.set_my_commands(botcmds)
+    bot.set_my_commands(botcmds)
     start_cleanup()
     if INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
         notifier_dict = DbManger().get_incomplete_tasks()
