@@ -1,5 +1,6 @@
 # Full Details 
-![TG Mirror Leech Bot](https://github.com/priiiiyo/tg-mirror-leech-bot)
+TG Mirror Leech Bot
+https://github.com/priiiiyo/tg-mirror-leech-bot
 
 # Heroku Deploy
 
