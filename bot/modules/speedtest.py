@@ -4,14 +4,13 @@ from charset_normalizer import logging
 from speedtest import Speedtest
 from bot.helper.ext_utils.bot_utils import get_readable_time
 from telegram.ext import CommandHandler
-
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot import dispatcher, botStartTime
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.message_utils import auto_delete_message, sendMessage, deleteMessage, sendPhoto, editMessage
 
 def speedtest(update, context):
-    speed = sendMessage("Running Speed Test. Wait about 20 secs.", context.bot, update)
+    speed = sendMessage("Running Speed Test. Wait about 20 secs.", context.bot, update.message)
     test = Speedtest()
     test.get_best_server()
     test.download()

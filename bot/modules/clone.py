@@ -2,25 +2,45 @@ from random import SystemRandom
 from string import ascii_letters, digits
 from telegram.ext import CommandHandler
 from threading import Thread
-from time import sleep
+from time import time, sleep
 
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
-from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, deleteMessage, delete_all_messages, update_all_messages, sendStatusMessage, auto_delete_message, auto_delete_upload_message
+from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, deleteMessage, delete_all_messages, update_all_messages, sendStatusMessage, auto_delete_upload_message
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.mirror_utils.status_utils.clone_status import CloneStatus
-from bot import bot, dispatcher, LOGGER, CLONE_LIMIT, STOP_DUPLICATE, download_dict, download_dict_lock, Interval, BOT_PM, MIRROR_LOGS, AUTO_DELETE_UPLOAD_MESSAGE_DURATION
+from bot import dispatcher, LOGGER, CLONE_LIMIT, STOP_DUPLICATE, download_dict, download_dict_lock, Interval, BOT_PM, MIRROR_LOGS, AUTO_DELETE_UPLOAD_MESSAGE_DURATION, CLONE_ENABLED, LINK_LOGS
 from bot.helper.ext_utils.bot_utils import get_readable_file_size, is_gdrive_link, is_gdtot_link, new_thread, is_appdrive_link
 from bot.helper.mirror_utils.download_utils.direct_link_generator import gdtot, appdrive
 from bot.helper.ext_utils.exceptions import DirectDownloadLinkException
 from telegram import InlineKeyboardMarkup, ParseMode
 from bot.helper.telegram_helper.button_build import ButtonMaker
+
 def _clone(message, bot, multi=0):
-    buttons = ButtonMaker()
     if AUTO_DELETE_UPLOAD_MESSAGE_DURATION != -1:
         reply_to = message.reply_to_message
         if reply_to is not None:
             reply_to.delete()
+        auto_delete_message = int(AUTO_DELETE_UPLOAD_MESSAGE_DURATION / 60)
+        if message.chat.type == 'private':
+            warnmsg = ''
+        else:
+            warnmsg = f'This message will be deleted in <i>{auto_delete_message} minutes</i> from this group.\n'
+    else:
+        warnmsg = ''
+    if BOT_PM and message.chat.type != 'private':
+        pmwarn = f'I have sent files in PM.</b>\n'
+    elif message.chat.type == 'private':
+        pmwarn = ''
+    else:
+        pmwarn = ''
+    if MIRROR_LOGS and message.chat.type != 'private':
+        logwarn = f'I have sent files in <a href="{LOG_CHAT_URL}">Mirror Log Channel<a\>'
+    elif message.chat.type == 'private':
+        logwarn = ''
+    else:
+        logwarn = ''
+    buttons = ButtonMaker()
     if BOT_PM:
         try:
             msg1 = f'Added your Requested link to Download\n'
@@ -37,21 +57,28 @@ def _clone(message, bot, multi=0):
             message = sendMarkup(startwarn, bot, message, InlineKeyboardMarkup(buttons.build_menu(2)))
             Thread(target=auto_delete_message, args=(bot, message, message)).start()
             return
-    args = message.text.split(" ", maxsplit=1)
+    if BOT_PM:	
+        bot_d = bot.get_me()	
+        b_uname = bot_d.username	
+        botstart = f"http://t.me/{b_uname}"	
+        buttons.buildbutton("View file in PM", f"{botstart}")
+    
+    args = message.text.split()
     reply_to = message.reply_to_message
     link = ''
+    
     if len(args) > 1:
-        link = args[1]
-        if link.isdigit():
+        link = args[1].strip()
+        if link.strip().isdigit():
             multi = int(link)
             link = ''
         elif message.from_user.username:
             tag = f"@{message.from_user.username}"
         else:
             tag = message.from_user.mention_html(message.from_user.first_name)
-    if reply_to is not None:
+    if reply_to:
         if len(link) == 0:
-            link = reply_to.text
+            link = reply_to.text.split(maxsplit=1)[0].strip()
         if reply_to.from_user.username:
             tag = f"@{reply_to.from_user.username}"
         else:
@@ -123,11 +150,11 @@ def _clone(message, bot, multi=0):
                     update_all_messages()
             except IndexError:
                 pass
-        cc = f'\n\n<b>cc: </b>{tag}'
+        cc = f'\n<b>cc: </b>{tag}\n\n'
         if button in ["cancelled", ""]:
             sendMessage(f"{tag} {result}", bot, message)
         else:
-            msg = sendMarkup(result + cc, bot, message, button)
+            msg = sendMarkup(result + cc + pmwarn + logwarn + warnmsg, bot, message, button)
             LOGGER.info(f'Cloning Done: {name}')
             Thread(target=auto_delete_upload_message, args=(bot, message, msg)).start()
         if is_gdtot:
@@ -135,7 +162,7 @@ def _clone(message, bot, multi=0):
         elif is_appdrive:
             if apdict.get('link_type') == 'login':
                 LOGGER.info(f"Deleting: {link}")
-                gd.deletefile(link)
+                gd.deletefile(link)   
         if MIRROR_LOGS:
             try:
                 for chatid in MIRROR_LOGS:
@@ -149,12 +176,37 @@ def _clone(message, bot, multi=0):
             except Exception as e:
                 LOGGER.warning(e)
                 return
+    mesg = message.text.split('\n')
+    message_args = mesg[0].split(' ', maxsplit=1)
+    user_id = message.from_user.id
+    tag = f"@{message.from_user.username}"
+    slmsg = f"Added by: {tag} \nUser ID: <code>{user_id}</code>\n\n"
+    if LINK_LOGS:
+            try:
+                source_link = message_args[1]
+                for link_log in LINK_LOGS:
+                    bot.sendMessage(link_log, text=slmsg + source_link, parse_mode=ParseMode.HTML )
+            except IndexError:
+                pass
+            if reply_to is not None:
+                try:
+                    reply_text = reply_to.text
+                    if is_url(reply_text):
+                        source_link = reply_text.strip()
+                        for link_log in LINK_LOGS:
+                            bot.sendMessage(chat_id=link_log, text=slmsg + source_link, parse_mode=ParseMode.HTML )
+                except TypeError:
+                    pass  
     else:
-        sendMessage('Send Gdrive or gdtot or appdrive link along with command or by replying to the link by command', bot, message)
+        sendMessage('Send Gdrive, appdrive or gdtot link along with command or by replying to the link by command', bot, message)
 
 @new_thread
 def cloneNode(update, context):
     _clone(update.message, context.bot)
 
-clone_handler = CommandHandler(BotCommands.CloneCommand, cloneNode, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+if CLONE_ENABLED:
+    clone_handler = CommandHandler(BotCommands.CloneCommand, cloneNode, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+else:
+    clone_handler = CommandHandler(BotCommands.CloneCommand, cloneNode, filters=CustomFilters.owner_filter | CustomFilters.authorized_user, run_async=True)
+
 dispatcher.add_handler(clone_handler)

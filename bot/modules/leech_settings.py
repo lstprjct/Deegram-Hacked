@@ -4,8 +4,8 @@ from PIL import Image
 from telegram.ext import CommandHandler, CallbackQueryHandler
 from telegram import InlineKeyboardMarkup
 
-from bot import AS_DOC_USERS, AS_MEDIA_USERS, dispatcher, AS_DOCUMENT, AUTO_DELETE_MESSAGE_DURATION, DB_URI
-from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, editMessage, auto_delete_message
+from bot import AS_DOC_USERS, AS_MEDIA_USERS, dispatcher, AS_DOCUMENT, DB_URI
+from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, editMessage, sendPhoto
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper import button_build
@@ -31,13 +31,12 @@ def getleechinfo(from_user):
     if ospath.exists(thumbpath):
         thumbmsg = "Exists"
         buttons.sbutton("Delete Thumbnail", f"leechset {user_id} thumb")
+        buttons.sbutton("Show Thumbnail", f"leechset {user_id} showthumb")
     else:
         thumbmsg = "Not Exists"
 
-    if AUTO_DELETE_MESSAGE_DURATION == -1:
-        buttons.sbutton("Close", f"leechset {user_id} close")
 
-    button = InlineKeyboardMarkup(buttons.build_menu(1))
+    button = InlineKeyboardMarkup(buttons.build_menu(2))
 
     text = f"<u>Leech Settings for <a href='tg://user?id={user_id}'>{name}</a></u>\n"\
            f"Leech Type <b>{ltype}</b>\n"\
@@ -51,14 +50,14 @@ def editLeechType(message, query):
 def leechSet(update, context):
     msg, button = getleechinfo(update.message.from_user)
     choose_msg = sendMarkup(msg, context.bot, update.message, button)
-    Thread(target=auto_delete_message, args=(context.bot, update.message, choose_msg)).start()
+    Thread(args=(context.bot, update.message, choose_msg)).start()
 
 def setLeechType(update, context):
     query = update.callback_query
     message = query.message
     user_id = query.from_user.id
     data = query.data
-    data = data.split(" ")
+    data = data.split()
     if user_id != int(data[1]):
         query.answer(text="Not Yours!", show_alert=True)
     elif data[2] == "doc":
@@ -87,6 +86,13 @@ def setLeechType(update, context):
             editLeechType(message, query)
         else:
             query.answer(text="Old Settings", show_alert=True)
+    elif data[2] == "showthumb":
+        path = f"Thumbnails/{user_id}.jpg"
+        if ospath.lexists(path):
+            msg = f"Thumbnail for: {query.from_user.mention_html()} (<code>{str(user_id)}</code>)"
+            delo = sendPhoto(text=msg, bot=context.bot, message=message, photo=open(path, 'rb'))
+            Thread(args=(context.bot, update.message, delo)).start()
+        else: query.answer(text="Send new settings command.")
     else:
         query.answer()
         try:
@@ -103,7 +109,7 @@ def setThumb(update, context):
         if not ospath.isdir(path):
             mkdir(path)
         photo_dir = reply_to.photo[-1].get_file().download()
-        des_dir = ospath.join(path, str(user_id) + ".jpg")
+        des_dir = ospath.join(path, f'{user_id}.jpg')
         Image.open(photo_dir).convert("RGB").save(des_dir, "JPEG")
         osremove(photo_dir)
         if DB_URI is not None:

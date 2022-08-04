@@ -15,12 +15,29 @@ This is a Telegram Bot written in Python for mirroring files on the Internet to 
     <summary><b>Click Here For More Details</b></summary>
 
 ## Special Features By [Priiiiyo](https://github.com/priiiiyo)
-- Mirror logs
-- Source link logs
+- Bot PM Support
+- Mirror Logs Support
+- Leech Logs Support
+- Link Logs
+- Auto Delete Upload Message
+- Warning Message For Above 4 Points In Upload Message
+- Leech Indexing Both in Authorized Chats & Leech Log
+- Source Link Logs
+- Stable Refresh, Close, Statistics Button In Uploading Progress
 - Database Support for leech logs
 - Sending Leeched files and Mirror links in user's PM
-- Appdrive Support
-- Megasdkrest Client implimentation
+- Easily Customize The Telegraph Details Using Congif.Env.
+- Change Google Drive Discription Using The Config.Env.
+- Change Progress Bar Icon Using The Config.Env.
+- Chance Each Command Name Using The Config.Env.
+- Directly Turn On/Off Each Module For Authorized Chats Using The Config.Env.
+- Mediainfo Module Added.
+- Anilist Module Added.
+- Wayback Module Added.
+- Usage Module Added.
+- Auto Add Heroku Api And App Name No Need To Fill These Variable In Config.Env.
+- Show Thumbnail Button Added.
+- Appdrive Support.
 - Change commands directly from config.env
 - Auto Delete All Bot Related Message in AUTO_DELETE_UPLOAD_MESSAGE_DURATION duration
 - And many more little changes can't remember
@@ -89,7 +106,7 @@ This is a Telegram Bot written in Python for mirroring files on the Internet to 
 
 - Clone this repo:
 ```
-git clone https://github.com/Appeza/tg-mirror-leech-bot mirrorbot/ && cd mirrorbot
+git clone https://github.com/priiiiyo/tg-mirror-leech-bot mirrorbot/ && cd mirrorbot
 ```
 - For Debian based distros
 ```
@@ -193,11 +210,31 @@ Fill up rest of the fields. Meaning of each field is discussed below:
 - `UPSTREAM_REPO`: Your github repository link, if your repo is private add `https://username:{githubtoken}@github.com/{username}/{reponame}` format. Get token from [Github settings](https://github.com/settings/tokens). So you can update your bot from filled repository on each restart. **NOTE**: Any change in docker or requirements you need to deploy/build again with updated repo to take effect. DON'T delete .gitignore file. For more information read [THIS](https://github.com/Appeza/tg-mirror-leech-bot/tree/master#upstream-repo-recommended).
 - `UPSTREAM_BRANCH`: Upstream branch for update. Default is `master`.
 
+### Turn On-Off Functions
+- `LEECH_ENABLED`: Enable or disable leech command for authorized chats. Default is False
+- `MIRROR_ENABLED`: Enable or disable mirror command for authorized chats. Default is False
+- `WATCH_ENABLED`: Enable or disable watch command for authorized chats. Default is False
+- `CLONE_ENABLED`: Enable or disable clone command for authorized chats. Default is False
+- `ANILIST_ENABLED`: Enable or disable anilist command for authorized chats. Default is False
+- `WAYBACK_ENABLED`: Enable or disable wayback command for authorized chats. Default is False
+- `MEDIAINFO_ENABLED`: Enable or disable mediainfo command for authorized chats. Default is False
+- `SET_BOT_COMMANDS`: Auto set bot commands in bot i.e no need to set bot command manually using botfather. Default is False
+
 ### Leech
+- `BOT_PM`: set it True if you want to send mirror links and leeched files in user's PM, Default is False.
+- `MIRROR_LOGS`: Chat id of channels/groups where you want to store Mirror logs, NOTE Add bot in Mirror logs channel/group as Admin.
+- `LEECH_LOG`: Chat id of channel/group where leeched files will be uploaded, NOTE: only put 1 channel/group id starts with -100xxxxxxxxx, NOTE add bot in that channel/group as Admin, if you leave this empty bot will sent leech files in current chat.
+- `LINK_LOG`: Chat id of channel/group where link have to be send, NOTE: only put 1 channel/group id starts with -100xxxxxxxxx, NOTE add bot in that channel/group as Admin.
 - `TG_SPLIT_SIZE`: Size of split in bytes. Default is `2GB`.
 - `AS_DOCUMENT`: Default type of Telegram file upload. Default is `False` mean as media. `Bool`
 - `EQUAL_SPLITS`: Split files larger than **TG_SPLIT_SIZE** into equal parts size (Not working with zip cmd). Default is `False`. `Bool`
 - `CUSTOM_FILENAME`: Add custom word to leeched file name.
+
+### Telegraph UI
+- `TITLE_NAME`: Title name for Telegraph pages (while using /list command)
+- `AUTHOR_NAME`: Author name for Telegraph pages
+- `AUTHOR_URL`: Author URL for Telegraph page
+- `GD_INFO`: Description of file uploaded to gdrive using bot
 
 ### qBittorrent
 - `BASE_URL_OF_BOT`: Valid BASE URL where the bot is deployed to use qbittorrent web selection. Format of URL should be `http://myip`, where `myip` is the IP/Domain(public) of your bot or if you have chosen port other than `80` so write it in this format `http://myip:port` (`http` and not `https`). This Var is optional on VPS and required for Heroku specially to avoid app sleeping/idling. For Heroku fill `https://yourappname.herokuapp.com`. Still got idling? You can use http://cron-job.org to ping your Heroku app.
@@ -236,12 +273,20 @@ Fill up rest of the fields. Meaning of each field is discussed below:
 ### GDTOT
 - `CRYPT`: Cookie for gdtot google drive link generator. Follow these [steps](https://github.com/Appeza/tg-mirror-leech-bot/tree/master#gdtot-cookies).
 
+## APPDRIVE
+- `APPDRIVE_EMAIL`: - Your Appdrive account email
+- `APPDRIVE_PASS`: - Your Appdrive account password
+
 ### Size Limits
 - `TORRENT_DIRECT_LIMIT`: To limit the Torrent/Direct mirror size. Don't add unit. Default unit is `GB`.
 - `ZIP_UNZIP_LIMIT`: To limit the size of zip and unzip commands. Don't add unit. Default unit is `GB`.
 - `CLONE_LIMIT`: To limit the size of Google Drive folder/file which you can clone. Don't add unit. Default unit is `GB`.
 - `MEGA_LIMIT`: To limit the size of Mega download. Don't add unit. Default unit is `GB`.
 - `STORAGE_THRESHOLD`: To leave specific storage free and any download will lead to leave free storage less than this value will be cancelled. Don't add unit. Default unit is `GB`.
+
+### Progress String
+- `FINISHED_PROGRESS_STR`: Change finish progress bar icon, Default is ●
+- `UN_FINISHED_PROGRESS_STR`: Change unfinish progress bar icon, Default is ○
 
 ### Buttons
 - `VIEW_LINK`: View Link button to open file Index Link in browser instead of direct download link, you can figure out if it's compatible with your Index code or not, open any video from you Index and check if its URL ends with `?a=view`, if yes make it `True`, compatible with [BhadooIndex](https://gitlab.com/ParveenBhadooOfficial/Google-Drive-Index) Code. Default is `False`. `Bool`

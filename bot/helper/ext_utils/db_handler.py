@@ -1,7 +1,7 @@
 from os import path as ospath, makedirs
 from psycopg2 import connect, DatabaseError
 
-from bot import DB_URI, AUTHORIZED_CHATS, SUDO_USERS, AS_DOC_USERS, AS_MEDIA_USERS, rss_dict, LOGGER, MOD_USERS, botname, LEECH_LOG, LEECH_LOG_ALT
+from bot import DB_URI, AUTHORIZED_CHATS, SUDO_USERS, AS_DOC_USERS, AS_MEDIA_USERS, rss_dict, LOGGER, botname, LEECH_LOG
 
 class DbManger:
     def __init__(self):
@@ -31,7 +31,6 @@ class DbManger:
                  doc boolean DEFAULT FALSE,
                  thumb bytea DEFAULT NULL,
                  leechlog boolean DEFAULT FALSE
-                 leechlog_alt boolean DEFAULT FALSE
               )
               """
         self.cur.execute(sql)
@@ -69,12 +68,8 @@ class DbManger:
                         makedirs('Thumbnails')
                     with open(path, 'wb+') as f:
                         f.write(row[5])
-                if row[6] and row[0] not in MOD_USERS:
-                    MOD_USERS.add(row[0])
-                if row[7] and row[0] not in LEECH_LOG:
+                if row[6] and row[0] not in LEECH_LOG:
                     LEECH_LOG.add(row[0])
-                if row[8] and row[0] not in LEECH_LOG_ALT:
-                    LEECH_LOG_ALT.add(row[0])
             LOGGER.info("Users data has been imported from Database")
         # Rss Data
         self.cur.execute("SELECT * FROM rss")
@@ -112,52 +107,6 @@ class DbManger:
             self.conn.commit()
             self.disconnect()
             return 'Unauthorized successfully'
-
-    #For Leech log
-    def addleech_log(self, chat_id: int):
-        if self.err:
-            return "Error in DB connection, check log for details"
-        elif not self.user_check(chat_id):
-            sql = 'INSERT INTO users (uid, leechlog) VALUES ({}, TRUE)'.format(chat_id)
-        else:
-            sql = 'UPDATE users SET leechlog = TRUE WHERE uid = {}'.format(chat_id)
-        self.cur.execute(sql)
-        self.conn.commit()
-        self.disconnect()
-        return 'Successfully added to leech logs'
-
-    def rmleech_log(self, chat_id: int):
-        if self.err:
-            return "Error in DB connection, check log for details"
-        elif self.user_check(chat_id):
-            sql = 'UPDATE users SET leechlog = FALSE WHERE uid = {}'.format(chat_id)
-            self.cur.execute(sql)
-            self.conn.commit()
-            self.disconnect()
-            return 'Removed from leech logs successfully'
-
-    #For alt Leech log
-    def addleech_log_alt(self, chat_id: int):
-        if self.err:
-            return "Error in DB connection, check log for details"
-        elif not self.user_check(chat_id):
-            sql = 'INSERT INTO users (uid, leechlogalt) VALUES ({}, TRUE)'.format(chat_id)
-        else:
-            sql = 'UPDATE users SET leechlogalt = TRUE WHERE uid = {}'.format(chat_id)
-        self.cur.execute(sql)
-        self.conn.commit()
-        self.disconnect()
-        return 'Successfully added to leech logs.'
-
-    def rmleech_log_alt(self, chat_id: int):
-        if self.err:
-            return "Error in DB connection, check log for details"
-        elif self.user_check(chat_id):
-            sql = 'UPDATE users SET leechlogalt = FALSE WHERE uid = {}'.format(chat_id)
-            self.cur.execute(sql)
-            self.conn.commit()
-            self.disconnect()
-            return 'Removed from leech logs successfully.'
 
     def user_addsudo(self, user_id: int):
         if self.err:
@@ -225,6 +174,28 @@ class DbManger:
         self.conn.commit()
         self.disconnect()
 
+    def addleech_log(self, chat_id: int):
+        if self.err:
+            return "Error in DB connection, check log for details"
+        elif not self.user_check(chat_id):
+            sql = 'INSERT INTO users (uid, leechlog) VALUES ({}, TRUE)'.format(chat_id)
+        else:
+            sql = 'UPDATE users SET leechlog = TRUE WHERE uid = {}'.format(chat_id)
+        self.cur.execute(sql)
+        self.conn.commit()
+        self.disconnect()
+        return 'Successfully added to leech logs'
+
+    def rmleech_log(self, chat_id: int):
+        if self.err:
+            return "Error in DB connection, check log for details"
+        elif self.user_check(chat_id):
+            sql = 'UPDATE users SET leechlog = FALSE WHERE uid = {}'.format(chat_id)
+            self.cur.execute(sql)
+            self.conn.commit()
+            self.disconnect()
+            return 'Removed from leech logs successfully'
+
     def user_check(self, uid: int):
         self.cur.execute("SELECT * FROM users WHERE uid = {}".format(uid))
         res = self.cur.fetchone()
@@ -250,43 +221,6 @@ class DbManger:
         if self.err:
             return
         self.cur.execute("DELETE FROM rss WHERE name = %s", (name,))
-        self.conn.commit()
-        self.disconnect()
-
-    def rss_delete_all(self):
-        if self.err:
-            return
-        self.cur.execute("TRUNCATE TABLE rss")
-        self.conn.commit()
-        self.disconnect()
-
-    def user_addmod(self, user_id: int):
-        if self.err:
-            return "Error in DB connection, check log for details"
-        elif not self.user_check(user_id):
-            sql = 'INSERT INTO users (uid, mod) VALUES ({}, TRUE)'.format(user_id)
-        else:
-            sql = 'UPDATE users SET mod = TRUE WHERE uid = {}'.format(user_id)
-        self.cur.execute(sql)
-        self.conn.commit()
-        self.disconnect()
-        return 'Successfully Promoted as Moderator'
-
-    def user_rmmod(self, user_id: int):
-        if self.err:
-            return "Error in DB connection, check log for details"
-        elif self.user_check(user_id):
-             sql = 'UPDATE users SET mod = FALSE WHERE uid = {}'.format(user_id)
-             self.cur.execute(sql)
-             self.conn.commit()
-             self.disconnect()
-             return 'Successfully removed from Moderator' 
-    
-    def add_incomplete_task(self, cid: int, link: str, tag: str):
-        if self.err:
-            return
-        q = (cid, link, tag)
-        self.cur.execute("INSERT INTO {} (cid, link, tag) VALUES (%s, %s, %s)".format(botname), q)
         self.conn.commit()
         self.disconnect()
 

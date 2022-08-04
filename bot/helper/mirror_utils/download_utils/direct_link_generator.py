@@ -11,17 +11,19 @@ for original authorship. """
 from requests import get as rget, head as rhead, post as rpost, Session as rsession
 from re import findall as re_findall, sub as re_sub, match as re_match, search as re_search
 from base64 import b64decode
-from urllib.parse import urlparse, unquote
+from urllib.parse import urlparse, unquote, parse_qs
 from json import loads as jsnloads
 from lk21 import Bypass
+from lxml import etree
 from cfscrape import create_scraper
 from bs4 import BeautifulSoup
 from base64 import standard_b64encode
-from lxml import etree
+from selenium import webdriver
+from selenium.webdriver.common.by import By
 
 from bot import LOGGER, UPTOBOX_TOKEN, CRYPT, APPDRIVE_EMAIL, APPDRIVE_PASS
 from bot.helper.telegram_helper.bot_commands import BotCommands
-from bot.helper.ext_utils.bot_utils import is_gdtot_link
+from bot.helper.ext_utils.bot_utils import is_appdrive_link, is_gdtot_link
 from bot.helper.ext_utils.exceptions import DirectDownloadLinkException
 
 fmed_list = ['fembed.net', 'fembed.com', 'femax20.com', 'fcdn.stream', 'feurl.com', 'layarkacaxxi.icu',
@@ -70,6 +72,8 @@ def direct_link_generator(link: str):
         return krakenfiles(link)
     elif is_gdtot_link(link):
         return gdtot(link)
+    elif is_appdrive_link(link):
+        return appdrive(link)
     elif any(x in link for x in fmed_list):
         return fembed(link)
     elif any(x in link for x in ['sbembed.com', 'watchsb.com', 'streamsb.net', 'sbplay.org']):
@@ -86,7 +90,7 @@ def yandex_disk(url: str) -> str:
     """ Yandex.Disk direct link generator
     Based on https://github.com/wldhx/yadisk-direct """
     try:
-        link = re_findall(r'\b(https?://(yadi.sk|disk.yandex.com)\S+)', url)[0][0]
+        link = re_findall(r'\b(https?://(yadi.sk|disk.yandex.com|disk.yandex.ru|disk.yandex.com.tr|disk.yandex.com.ru)\S+)', url)[0][0]
     except IndexError:
         return "No Yandex.Disk links found\n"
     api = 'https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key={}'
@@ -111,7 +115,7 @@ def uptobox(url: str) -> str:
             dl_url = link
         except:
             file_id = re_findall(r'\bhttps?://.*uptobox\.com/(\w+)', url)[0]
-            file_link = 'https://uptobox.com/api/link?token=%s&file_code=%s' % (UPTOBOX_TOKEN, file_id)
+            file_link = f'https://uptobox.com/api/link?token={UPTOBOX_TOKEN}&file_code={file_id}'
             req = rget(file_link)
             result = req.json()
             dl_url = result['data']['dlLink']
@@ -206,8 +210,7 @@ def onedrive(link: str) -> str:
     resp = rhead(direct_link1)
     if resp.status_code != 302:
         raise DirectDownloadLinkException("ERROR: Unauthorized link, the link may be private")
-    dl_link = resp.next.url
-    return dl_link
+    return resp.next.url
 
 def pixeldrain(url: str) -> str:
     """ Based on https://github.com/yash-dk/TorToolkit-Telegram """
@@ -223,7 +226,7 @@ def pixeldrain(url: str) -> str:
     if resp["success"]:
         return dl_link
     else:
-        raise DirectDownloadLinkException("ERROR: Cant't download due {}.".format(resp["message"]))
+        raise DirectDownloadLinkException(f"ERROR: Cant't download due {resp['message']}.")
 
 def antfiles(url: str) -> str:
     """ Antfiles direct link generator
@@ -250,8 +253,8 @@ def racaty(url: str) -> str:
     soup = BeautifulSoup(r.text, "lxml")
     op = soup.find("input", {"name": "op"})["value"]
     ids = soup.find("input", {"name": "id"})["value"]
-    rpost = scraper.post(url, data = {"op": op, "id": ids})
-    rsoup = BeautifulSoup(rpost.text, "lxml")
+    rapost = scraper.post(url, data = {"op": op, "id": ids})
+    rsoup = BeautifulSoup(rapost.text, "lxml")
     dl_url = rsoup.find("a", {"id": "uniqueExpirylink"})["href"].replace(" ", "%20")
     return dl_url
 
@@ -400,7 +403,6 @@ def account_login(client, url, email, password):
         'password': password
     }
     client.post(f'https://{urlparse(url).netloc}/login', data=data)
-
 def gen_payload(data, boundary=f'{"-"*6}_'):
     data_string = ''
     for item in data:
@@ -457,4 +459,4 @@ def appdrive(url: str) -> str:
     if not info_parsed['error']:
         return info_parsed
     else:
-        raise DirectDownloadLinkException(f"{info_parsed['error_message']}")
+        raise DirectDownloadLinkException(f"{info_parsed['error_message']}") 

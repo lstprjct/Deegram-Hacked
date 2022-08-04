@@ -4,13 +4,13 @@ from telegram import InlineKeyboardMarkup
 from time import sleep
 from re import split as re_split
 
-from bot import DOWNLOAD_DIR, dispatcher
+from bot import DOWNLOAD_DIR, dispatcher, BOT_PM, LOGGER, WATCH_ENABLED
 from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, editMessage, auto_delete_upload_message
-from bot.helper.telegram_helper import button_build
 from bot.helper.ext_utils.bot_utils import get_readable_file_size, is_url
 from bot.helper.mirror_utils.download_utils.youtube_dl_download_helper import YoutubeDLHelper
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.filters import CustomFilters
+from bot.helper.telegram_helper.button_build import ButtonMaker
 from .mirror import MirrorListener
 
 listener_dict = {}
@@ -19,35 +19,58 @@ def _watch(bot, message, isZip=False, isLeech=False, multi=0):
     mssg = message.text
     user_id = message.from_user.id
     msg_id = message.message_id
+    buttons = ButtonMaker()
+    if BOT_PM and message.chat.type != 'private':
+        try:
+            msg1 = f'Added your Requested link to Download\n'
+            send = bot.sendMessage(message.from_user.id, text=msg1)
+            send.delete()
+        except Exception as e:
+            LOGGER.warning(e)
+            bot_d = bot.get_me()
+            b_uname = bot_d.username
+            uname = f'<a href="tg://user?id={message.from_user.id}">{message.from_user.first_name}</a>'
+            botstart = f"http://t.me/{b_uname}"
+            buttons.buildbutton("Click Here to Start Me", f"{botstart}")
+            startwarn = f"Dear {uname},\n\n<b>I found that you haven't started me in PM (Private Chat) yet.</b>\n\n" \
+                        f"From now on i will give link and leeched files in PM and log channel only"
+            message = sendMarkup(startwarn, bot, message, InlineKeyboardMarkup(buttons.build_menu(2)))
+            return
 
-    try:
-        link = mssg.split(' ')[1].strip()
-        if link.isdigit():
+    link = mssg.split()
+    if len(link) > 1:
+        link = link[1].strip()
+        if link.strip().isdigit():
             multi = int(link)
-            raise IndexError
-        elif link.startswith(("|", "pswd:", "args:")):
-            raise IndexError
-    except:
+            link = ''
+        elif link.strip().startswith(("|", "pswd:", "args:")):
+            link = ''
+    else:
         link = ''
-    try:
-        name_arg = mssg.split('|', maxsplit=1)
-        if 'args: ' in name_arg[0]:
-            raise IndexError
+
+    name = mssg.split('|', maxsplit=1)
+    if len(name) > 1:
+        if 'args: ' in name[0] or 'pswd: ' in name[0]:
+            name = ''
         else:
-            name = name_arg[1]
-        name = re_split(r' pswd: | args: ', name)[0]
-        name = name.strip()
-    except:
+            name = name[1]
+        if name != '':
+            name = re_split('pswd:|args:', name)[0]
+            name = name.strip()
+    else:
         name = ''
-    try:
-        pswd = mssg.split(' pswd: ')[1]
+
+    pswd = mssg.split(' pswd: ')
+    if len(pswd) > 1:
+        pswd = pswd[1]
         pswd = pswd.split(' args: ')[0]
-    except:
+    else:
         pswd = None
 
-    try:
-        args = mssg.split(' args: ')[1]
-    except:
+    args = mssg.split(' args: ')
+    if len(args) > 1:
+        args = args[1]
+    else:
         args = None
 
     if message.from_user.username:
@@ -58,7 +81,7 @@ def _watch(bot, message, isZip=False, isLeech=False, multi=0):
     reply_to = message.reply_to_message
     if reply_to is not None:
         if len(link) == 0:
-            link = reply_to.text.strip()
+            link = reply_to.text.split(maxsplit=1)[0].strip()
         if reply_to.from_user.username:
             tag = f"@{reply_to.from_user.username}"
         else:
@@ -74,12 +97,10 @@ def _watch(bot, message, isZip=False, isLeech=False, multi=0):
         help_msg += " Like playlist_items:10 works with string so no need to add `^` before the number"
         help_msg += " but playlistend works only with integer so you must add `^` before the number like example above."
         help_msg += "\n\nCheck all arguments from this <a href='https://github.com/yt-dlp/yt-dlp/blob/a3125791c7a5cdf2c8c025b99788bf686edd1a8a/yt_dlp/YoutubeDL.py#L194'>FILE</a>."
-        msg = sendMessage(help_msg, bot, message)
-        Thread(target=auto_delete_upload_message, args=(bot, message, msg)).start()
-        return
+        return sendMessage(help_msg, bot, message)
 
     listener = MirrorListener(bot, message, isZip, isLeech=isLeech, pswd=pswd, tag=tag)
-    buttons = button_build.ButtonMaker()
+    buttons = ButtonMaker()
     best_video = "bv*+ba/b"
     best_audio = "ba/b"
     ydl = YoutubeDLHelper(listener)
@@ -152,7 +173,6 @@ def _watch(bot, message, isZip=False, isLeech=False, multi=0):
         bmsg = sendMarkup('Choose Video Quality:', bot, message, YTBUTTONS)
 
     Thread(target=_auto_cancel, args=(bmsg, msg_id)).start()
-    Thread(target=auto_delete_upload_message, args=(bot, message, bmsg)).start()
     if multi > 1:
         sleep(4)
         nextmsg = type('nextmsg', (object, ), {'chat_id': message.chat_id, 'message_id': message.reply_to_message.message_id + 1})
@@ -163,7 +183,7 @@ def _watch(bot, message, isZip=False, isLeech=False, multi=0):
         Thread(target=_watch, args=(bot, nextmsg, isZip, isLeech, multi)).start()
 
 def _qual_subbuttons(task_id, qual, msg):
-    buttons = button_build.ButtonMaker()
+    buttons = ButtonMaker()
     task_info = listener_dict[task_id]
     formats_dict = task_info[6]
     qual_fps_ext = re_split(r'p|-', qual, maxsplit=2)
@@ -193,7 +213,7 @@ def _qual_subbuttons(task_id, qual, msg):
     editMessage(f"Choose Video Bitrate for <b>{qual}</b>:", msg, SUBBUTTONS)
 
 def _audio_subbuttons(task_id, msg, playlist=False):
-    buttons = button_build.ButtonMaker()
+    buttons = ButtonMaker()
     audio_qualities = [64, 128, 320]
     for q in audio_qualities:
         if playlist:
@@ -280,14 +300,26 @@ def leechWatch(update, context):
 def leechWatchZip(update, context):
     _watch(context.bot, update.message, True, True)
 
-watch_handler = CommandHandler(BotCommands.WatchCommand, watch,
-                                filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
-zip_watch_handler = CommandHandler(BotCommands.ZipWatchCommand, watchZip,
+if WATCH_ENABLED:
+    watch_handler = CommandHandler(BotCommands.WatchCommand, watch,
                                     filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
-leech_watch_handler = CommandHandler(BotCommands.LeechWatchCommand, leechWatch,
-                                filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
-leech_zip_watch_handler = CommandHandler(BotCommands.LeechZipWatchCommand, leechWatchZip,
+    zip_watch_handler = CommandHandler(BotCommands.ZipWatchCommand, watchZip,
+                                        filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+    leech_watch_handler = CommandHandler(BotCommands.LeechWatchCommand, leechWatch,
                                     filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+    leech_zip_watch_handler = CommandHandler(BotCommands.LeechZipWatchCommand, leechWatchZip,
+                                        filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+
+else:
+    watch_handler = CommandHandler(BotCommands.WatchCommand, watch,
+                                    filters=CustomFilters.owner_filter | CustomFilters.authorized_user, run_async=True)
+    zip_watch_handler = CommandHandler(BotCommands.ZipWatchCommand, watchZip,
+                                        filters=CustomFilters.owner_filter | CustomFilters.authorized_user, run_async=True)
+    leech_watch_handler = CommandHandler(BotCommands.LeechWatchCommand, leechWatch,
+                                    filters=CustomFilters.owner_filter | CustomFilters.authorized_user, run_async=True)
+    leech_zip_watch_handler = CommandHandler(BotCommands.LeechZipWatchCommand, leechWatchZip,
+                                        filters=CustomFilters.owner_filter | CustomFilters.authorized_user, run_async=True)
+
 quality_handler = CallbackQueryHandler(select_format, pattern="qu", run_async=True)
 
 dispatcher.add_handler(watch_handler)
