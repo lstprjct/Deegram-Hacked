@@ -3,7 +3,7 @@ TG Mirror Leech Bot
 
 - `Branch`: master
 
-https://github.com/priiiiyo/tg-mirror-leech-bot/master
+https://github.com/priiiiyo/tg-mirror-leech-bot
 
 # Heroku Deploy
 
