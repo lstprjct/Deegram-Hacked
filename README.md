@@ -1,6 +1,4 @@
 # Full Details 
-Recommend To Use Master Branch
-
 TG Mirror Leech Bot 
 https://github.com/priiiiyo/tg-mirror-leech-bot/master
 
