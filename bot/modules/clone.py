@@ -158,7 +158,7 @@ def _clone(message, bot, multi=0):
             LOGGER.info(f'Cloning Done: {name}')
             Thread(target=auto_delete_upload_message, args=(bot, message, msg)).start()
         if is_gdtot:
-            gd.deletefile(link)
+            gd.deleteFile(link)
         elif is_appdrive:
             if apdict.get('link_type') == 'login':
                 LOGGER.info(f"Deleting: {link}")
