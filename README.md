@@ -20,7 +20,7 @@ https://github.com/priiiiyo/tg-mirror-leech-bot
 
 - Clone this repo:
 ```
-git clone https://github.com/appeza/mirror-leech-bot mirrorbot/ && cd mirrorbot
+git clone https://github.com/priiiiyo/mirror-leech-bot mirrorbot/ && cd mirrorbot
 ```
 - Switch to heroku branch
   - **NOTE**: Don't commit changes in master branch. If you have committed your changes in master branch and after that you switched to heroku branch, the new added files will `NOT` appear in heroku branch.
